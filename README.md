@@ -26,3 +26,12 @@ cp target/quiz-api.war $TOMCAT_HOME/webapps/
 $TOMCAT_HOME/bin/startup.sh
 
 Then visit: http://localhost:8080/quiz-api/api/quizzes
+
+# work on a feature
+git checkout -b feature/submit-endpoint
+
+# ... code, code, code ...
+
+git add .
+git commit -m "Add submit endpoint with scoring logic"
+git push -u origin feature/submit-endpoint
