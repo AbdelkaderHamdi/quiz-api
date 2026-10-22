@@ -1,25 +1,55 @@
-package main.java.com.demo.quiz.data;
+package com.demo.quiz.data;
 
-import com.demo.quiz.model.*;
-import java.util.*;
+import com.demo.quiz.model.Option;
+import com.demo.quiz.model.Question;
+import com.demo.quiz.model.Quiz;
+import com.demo.quiz.model.Submission;
 
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+
+/** In-memory storage. Thread-safe. Data is lost when the app restarts. */
 public class QuizRepository {
-    private static final Map<Integer, Quiz> QUIZZES = new HashMap<>();
-    private static final Map<String, Submission> SUBMISSIONS = new HashMap<>();
 
-    static {
-        // Seed a sample quiz
-        Quiz q = new Quiz(1, "Java Basics");
-        Question q1 = new Question(1, "What is JVM?");
-        q1.addOption(new Option(1, "Java Virtual Machine"));
-        q1.addOption(new Option(2, "Java Very Minimal"));
-        q1.setCorrectOptionId(1);
-        q.addQuestion(q1);
-        // ... add more questions
-        QUIZZES.put(1, q);
+    private final Map<Integer, Quiz> quizzes = new ConcurrentSkipListMap<>();
+    private final Map<String, Submission> submissions = new ConcurrentHashMap<>();
+
+    public QuizRepository() {
+        seed();
     }
 
-    public static Collection<Quiz> findAll() { return QUIZZES.values(); }
-    public static Quiz findById(int id) { return QUIZZES.get(id); }
-    public static void saveSubmission(Submission s) { SUBMISSIONS.put(s.getId(), s); }
+    public Collection<Quiz> findAll() {
+        return quizzes.values();
+    }
+
+    public Quiz findById(int id) {
+        return quizzes.get(id);
+    }
+
+    public void saveSubmission(Submission submission) {
+        submissions.put(submission.id(), submission);
+    }
+
+    public Submission findSubmission(String id) {
+        return submissions.get(id);
+    }
+
+    private void seed() {
+        Question q1 = new Question(1, "What does JVM stand for?", List.of(
+                new Option(1, "Java Virtual Machine"),
+                new Option(2, "Java Very Minimal"),
+                new Option(3, "Joint Version Manager")), 1);
+        Question q2 = new Question(2, "Which keyword stops a class from being subclassed?", List.of(
+                new Option(1, "static"),
+                new Option(2, "final"),
+                new Option(3, "abstract")), 2);
+        Question q3 = new Question(3, "Which collection does not allow duplicate elements?", List.of(
+                new Option(1, "ArrayList"),
+                new Option(2, "HashSet"),
+                new Option(3, "LinkedList")), 2);
+        quizzes.put(1, new Quiz(1, "Java Basics", List.of(q1, q2, q3)));
+    }
 }
